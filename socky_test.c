@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 
 	announce_tests("socky_udp_* (flags: SOCKY_UDP_REUSEADDR | SOCKY_UDP_NONBLOCKING)");
 	{
-		SOCKET sock1 = socky_udp_open(7156, 0, error_str, sizeof(error_str));
+		SOCKET sock1 = socky_udp_open(7156, SOCKY_UDP_REUSEADDR | SOCKY_UDP_NONBLOCKING, error_str, sizeof(error_str));
 		check_test(!IS_INVALID_SOCKET(sock1), "sock1: socky_udp_open(7156) succeeds");
 
 		SOCKET sock2 = socky_udp_open(7156, SOCKY_UDP_REUSEADDR | SOCKY_UDP_NONBLOCKING, error_str, sizeof(error_str));
