@@ -1,4 +1,6 @@
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "socky.h"
 
@@ -22,7 +24,6 @@ void check_test(int cond, const char* desc)
 		{
 			printf("\n  %s\n", error_str);
 		}
-		system("pause");
 		exit(1);
 	}
 }
@@ -103,6 +104,5 @@ int main(int argc, char* argv[])
 	check_test(cleanup_result == 0, "socky_cleanup() returns 0");
 
 	printf("\nAll tests passed.\n");
-	system("pause");
 	return 0;
 }

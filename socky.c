@@ -1,6 +1,7 @@
 #include "socky.h"
 
 #include <stdio.h>
+#include <string.h>
 
 /*
 struct WinsockError
@@ -60,11 +61,11 @@ int socky_error_format(const char* prefix, char* errorStr, size_t errorStrLen)
 		int charsWritten;
 		if (prefix)
 		{
-			charsWritten = sprintf_s(errorStr, errorStrLen, "%s (error %d): ", prefix, code);
+			charsWritten = snprintf(errorStr, errorStrLen, "%s (error %d): ", prefix, code);
 		}
 		else
 		{
-			charsWritten = sprintf_s(errorStr, errorStrLen, "Error %d: ", code);
+			charsWritten = snprintf(errorStr, errorStrLen, "Error %d: ", code);
 		}
 		errorStr += charsWritten;
 		errorStrLen -= charsWritten;
@@ -135,7 +136,7 @@ SOCKET socky_udp_open(unsigned short bindPort, int flags, char* errorStr, size_t
 	if (flags & SOCKY_UDP_NONBLOCKING)
 	{
 		u_long nonBlockingMode = 1;
-		if (ioctlsocket(sock, FIONBIO, &nonBlockingMode) != 0)
+		if (ioctl(sock, FIONBIO, &nonBlockingMode) != 0)
 		{
 			socky_error_format("Failed to set FIONBIO", errorStr, errorStrLen);
 			socky_udp_close(sock);
@@ -154,7 +155,7 @@ SOCKET socky_udp_open(unsigned short bindPort, int flags, char* errorStr, size_t
 	if (bind(sock, (struct sockaddr*)&bindAddr, sizeof(bindAddr)) != 0)
 	{
 		char errorPrefix[64];
-		sprintf_s(errorPrefix, sizeof(errorPrefix), "Failed to bind socket to port %hu", bindPort);
+		snprintf(errorPrefix, sizeof(errorPrefix), "Failed to bind socket to port %hu", bindPort);
 		socky_error_format(errorPrefix, errorStr, errorStrLen);
 		socky_udp_close(sock);
 		return INVALID_SOCKET;

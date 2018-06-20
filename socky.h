@@ -9,6 +9,7 @@
   #include <winsock2.h>
   #include <Ws2tcpip.h>
   #include <iphlpapi.h>
+  #define ioctl ioctlsocket
   #define IS_INVALID_SOCKET(_Sock) (_Sock == INVALID_SOCKET)
 #else
   #include <sys/socket.h>
