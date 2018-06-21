@@ -82,7 +82,7 @@ int is_valid_ip(const char* s)
 	int val;
 
 	// Ensure that the first part is a valid uint8
-	strncpy(tmp, s, seg_a_len);
+	strncpy_s(tmp, sizeof(tmp), s, seg_a_len);
 	tmp[seg_a_len] = '\0';
 	val = atoi(tmp);
 	if (val < 0 || val > 255 || (val == 0 && (tmp[0] != '0' || tmp[1] != '\0')))
@@ -91,7 +91,7 @@ int is_valid_ip(const char* s)
 	}
 
 	// Ensure that the second part is a valid uint8
-	strncpy(tmp, dot_a + 1, seg_b_len);
+	strncpy_s(tmp, sizeof(tmp), dot_a + 1, seg_b_len);
 	tmp[seg_b_len] = '\0';
 	val = atoi(tmp);
 	if (val < 0 || val > 255 || (val == 0 && (tmp[0] != '0' || tmp[1] != '\0')))
@@ -100,7 +100,7 @@ int is_valid_ip(const char* s)
 	}
 
 	// Ensure that the third part is a valid uint8
-	strncpy(tmp, dot_b + 1, seg_c_len);
+	strncpy_s(tmp, sizeof(tmp), dot_b + 1, seg_c_len);
 	tmp[seg_c_len] = '\0';
 	val = atoi(tmp);
 	if (val < 0 || val > 255 || (val == 0 && (tmp[0] != '0' || tmp[1] != '\0')))
@@ -109,7 +109,7 @@ int is_valid_ip(const char* s)
 	}
 
 	// Ensure that the fourth part is a valid uint8
-	strncpy(tmp, dot_c + 1, seg_d_len);
+	strncpy_s(tmp, sizeof(tmp), dot_c + 1, seg_d_len);
 	tmp[seg_d_len] = '\0';
 	val = atoi(tmp);
 	if (val < 0 || val > 255 || (val == 0 && (tmp[0] != '0' || tmp[1] != '\0')))
