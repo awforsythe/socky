@@ -2,3 +2,4 @@ bin/*
 obj/*
 build/.vs/*
 build/*.vcxproj.user
+socky_test
