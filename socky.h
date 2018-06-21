@@ -25,6 +25,9 @@
   #ifndef INVALID_SOCKET
     #define INVALID_SOCKET -1
   #endif
+  #ifndef SOCKET_ERROR
+    #define SOCKET_ERROR -1
+  #endif
 #endif
 
 ///
@@ -77,3 +80,11 @@ SOCKET socky_udp_open(unsigned short bindPort, int flags, char* errorStr, size_t
 
 /** Closes the given socket, provided it's not invalid. */
 void socky_udp_close(SOCKET sock);
+
+/** Checks the given socket and reuturns a boolean value indicating whether it has any pending data to be read.
+	If true and outNumBytesAvailable is non-null, it will be populated with the size of the pending data. */
+int socky_udp_has_data(SOCKET sock, u_long* outNumBytesAvailable);
+
+/** Calls recvfrom on the given socket, reading data into the provided buffer and populating outFromAddr with the
+	address of the sender. Returns the number of bytes read, or 0 if unsuccessful. */
+int socky_udp_read(SOCKET sock, char* buffer, size_t bufferSize, struct sockaddr_in* outFromAddr);

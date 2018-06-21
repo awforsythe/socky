@@ -218,3 +218,28 @@ void socky_udp_close(SOCKET sock)
 #endif
 	}
 }
+
+int socky_udp_has_data(SOCKET sock, u_long* outNumBytesAvailable)
+{
+	u_long numBytes = 0;
+	if (ioctl(sock, FIONREAD, &numBytes) == 0)
+	{
+		if (outNumBytesAvailable)
+		{
+			*outNumBytesAvailable = numBytes;
+		}
+		return numBytes > 0;
+	}
+	return 0;
+}
+
+int socky_udp_read(SOCKET sock, char* buffer, size_t bufferSize, struct sockaddr_in* outFromAddr)
+{
+	int fromAddrLen = sizeof(struct sockaddr_in);
+	int numBytesReceived = recvfrom(sock, buffer, (int)bufferSize, 0, (struct sockaddr*)outFromAddr, &fromAddrLen);
+	if (numBytesReceived != SOCKET_ERROR)
+	{
+		return numBytesReceived;
+	}
+	return 0;
+}
