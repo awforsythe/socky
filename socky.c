@@ -80,7 +80,18 @@ void socky_adapters_init()
 	}
 
 #ifdef _WIN32
-	// TODO: Implement
+	IP_ADAPTER_INFO infos[MAX_ADAPTER_ADDRESSES];
+	ULONG bufferSize = sizeof(infos);
+	if (GetAdaptersInfo(infos, &bufferSize) == ERROR_SUCCESS)
+	{
+		// Iterate over all internet adapters
+		for (PIP_ADAPTER_INFO info = infos; info; info = info->Next)
+		{
+			// Copy the address string and increment our count of known adapter addresses
+			strcpy_s(s_adapter_addresses[s_num_adapter_addresses], sizeof(s_adapter_addresses[0]), info->IpAddressList.IpAddress.String);
+			s_num_adapter_addresses++;
+		}
+	}
 #else
 	struct ifaddrs* addrs;
 	struct ifaddrs* item;
