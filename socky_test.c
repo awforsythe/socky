@@ -80,42 +80,47 @@ int is_valid_ip(const char* s)
 	// Use a temporary array to store each address part as a null-terminated string for atoi
 	char tmp[4];
 	int val;
+#ifdef _WIN32
+#define IP_PART_ATOI(_Ptr, _Len) \
+	strncpy_s(tmp, sizeof(tmp), _Ptr, _Len); \
+	tmp[_Len] = '\0'; \
+	val = atoi(tmp);
+#else
+#define IP_PART_ATOI(_Ptr, Len) \
+	strncpy(tmp, _Ptr, _Len); \
+	tmp[_Len] = '\0';
+	val = atoi(tmp);
+#endif
 
 	// Ensure that the first part is a valid uint8
-	strncpy_s(tmp, sizeof(tmp), s, seg_a_len);
-	tmp[seg_a_len] = '\0';
-	val = atoi(tmp);
+	IP_PART_ATOI(s, seg_a_len);
 	if (val < 0 || val > 255 || (val == 0 && (tmp[0] != '0' || tmp[1] != '\0')))
 	{
 		return 0;
 	}
 
 	// Ensure that the second part is a valid uint8
-	strncpy_s(tmp, sizeof(tmp), dot_a + 1, seg_b_len);
-	tmp[seg_b_len] = '\0';
-	val = atoi(tmp);
+	IP_PART_ATOI(dot_a + 1, seg_b_len);
 	if (val < 0 || val > 255 || (val == 0 && (tmp[0] != '0' || tmp[1] != '\0')))
 	{
 		return 0;
 	}
 
 	// Ensure that the third part is a valid uint8
-	strncpy_s(tmp, sizeof(tmp), dot_b + 1, seg_c_len);
-	tmp[seg_c_len] = '\0';
-	val = atoi(tmp);
+	IP_PART_ATOI(dot_b + 1, seg_c_len);
 	if (val < 0 || val > 255 || (val == 0 && (tmp[0] != '0' || tmp[1] != '\0')))
 	{
 		return 0;
 	}
 
 	// Ensure that the fourth part is a valid uint8
-	strncpy_s(tmp, sizeof(tmp), dot_c + 1, seg_d_len);
-	tmp[seg_d_len] = '\0';
-	val = atoi(tmp);
+	IP_PART_ATOI(dot_c + 1, seg_d_len);
 	if (val < 0 || val > 255 || (val == 0 && (tmp[0] != '0' || tmp[1] != '\0')))
 	{
 		return 0;
 	}
+
+#undef IP_PART_ATOI
 
 	return 1;
 }
