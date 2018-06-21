@@ -127,6 +127,9 @@ int is_valid_ip(const char* s)
 
 int main(int argc, char* argv[])
 {
+	(void)argc;
+	(void)argv;
+
 	printf("Running socky test suite...\n");
 
 	announce_tests("is_valid_ip");
