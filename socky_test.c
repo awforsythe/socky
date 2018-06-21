@@ -146,8 +146,10 @@ int main(int argc, char* argv[])
 	}
 
 	announce_tests("socky_init");
-	const int init_result = socky_init();
-	check_test(init_result == 0, "socky_init() returns 0");
+	{
+		const int init_result = socky_init();
+		check_test(init_result == 0, "socky_init() returns 0");
+	}
 
 	announce_tests("socky_adapters_*");
 	{
@@ -206,8 +208,10 @@ int main(int argc, char* argv[])
 	}
 
 	announce_tests("socky_cleanup");
-	const int cleanup_result = socky_cleanup();
-	check_test(cleanup_result == 0, "socky_cleanup() returns 0");
+	{
+		const int cleanup_result = socky_cleanup();
+		check_test(cleanup_result == 0, "socky_cleanup() returns 0");
+	}
 
 	printf("\nAll tests passed.\n");
 	return 0;
