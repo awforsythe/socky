@@ -3,28 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 
-/*
-struct WinsockError
-{
-	WinsockError()
-		: message(NULL)
-		, code(-1)
-	{
-		code = WSAGetLastError();
-		DWORD formatFlags = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
-		DWORD size = FormatMessage(formatFlags, NULL, code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&message, 0, NULL);
-		message[size - 2] = '\0';
-	}
+#define MAX_ADAPTER_ADDRESSES 8
 
-	~WinsockError()
-	{
-		LocalFree(message);
-	}
-
-	TCHAR* message;
-	int code;
-};
-*/
+static char s_adapter_addresses[MAX_ADAPTER_ADDRESSES][32];
+static size_t s_num_adapter_addresses = 0;
 
 int socky_init()
 {
@@ -88,15 +70,55 @@ int socky_error_format(const char* prefix, char* errorStr, size_t errorStrLen)
 
 void socky_adapters_init()
 {
+	// Explicitly reset our module-level state: clear all names and reset adapter count to zero
+	s_num_adapter_addresses = 0;
+	for (int i = 0; i < MAX_ADAPTER_ADDRESSES; i++)
+	{
+		s_adapter_addresses[i][0] = '\0';
+	}
+
+#ifdef _WIN32
+	// TODO: Implement
+#else
+	struct ifaddrs* addrs;
+	getifaddrs(&addrs);
+	for (struct ifaddrs* item = addrs; item; item = item->ifa_next)
+	{
+		// Iterate over all internet adapters
+		if (item->ifa_addr && item->ifa_addr->sa_family == AF_INET)
+		{
+			// Get the string representation of the adapter address, and ensure it's not too large
+			struct sockaddr_in* addr = (struct sockaddr_in*)item->ifa_addr;
+			const char* ip = inet_ntoa(addr->sin_addr);
+			if (strlen(ip) + 1 > sizeof(s_adapter_addresses[0]))
+			{
+				continue;
+			}
+
+			// Copy the address string and increment our count of known adapter addresses
+			strncpy(s_adapter_addresses[s_num_adapter_addresses], ip, sizeof(s_adapter_addresses[s_num_adapter_addresses]));
+			s_num_adapter_addresses++;
+			if (s_num_adapter_addresses >= MAX_ADAPTER_ADDRESSES)
+			{
+				break;
+			}
+		}
+	}
+	freeifaddrs(addrs);
+#endif
 }
 
 int socky_adapters_num()
 {
-	return 0;
+	return s_num_adapter_addresses;
 }
 
 const char* socky_adapters_get_ip(int index)
 {
+	if (index >= 0 && index < s_num_adapter_addresses)
+	{
+		return s_adapter_addresses[index];
+	}
 	return NULL;
 }
 

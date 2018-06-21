@@ -12,10 +12,12 @@
   #define ioctl ioctlsocket
   #define IS_INVALID_SOCKET(_Sock) (_Sock == INVALID_SOCKET)
 #else
+  #include <sys/types.h>
   #include <sys/socket.h>
   #include <sys/ioctl.h>
   #include <arpa/inet.h>
   #include <netdb.h>
+  #include <ifaddrs.h>
   #include <unistd.h>
   #include <errno.h>
   typedef int SOCKET;

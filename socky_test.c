@@ -30,6 +30,93 @@ void check_test(int cond, const char* desc)
 
 int is_valid_ip(const char* s)
 {
+	// Require a valid, non-empty string
+	if (!s || !s[0])
+	{
+		return 0;
+	}
+
+	const size_t n = strlen(s);
+
+	// Require a first dot beyond the start of the string
+	const char* dot_a = strchr(s, '.');
+	if (dot_a == NULL || dot_a == s)
+	{
+		return 0;
+	}
+
+	// Require a second dot at least one character past that
+	const char* dot_b = strchr(dot_a + 1, '.');
+	if (dot_b == NULL || dot_b == dot_a + 1)
+	{
+		return 0;
+	}
+
+	// Require a third dot at least one character past the second
+	const char* dot_c = strchr(dot_b + 1, '.');
+	if (dot_c == NULL || dot_c == dot_b + 1 || dot_c == s + n - 1)
+	{
+		return 0;
+	}
+
+	// Require exactly three dots: no fourth dot
+	if (strchr(dot_c + 1, '.') != NULL)
+	{
+		return 0;
+	}
+
+	// Compute the length of each individual address part
+	const size_t seg_a_len = dot_a - s;
+	const size_t seg_b_len = dot_b - dot_a - 1;
+	const size_t seg_c_len = dot_c - dot_b - 1;
+	const size_t seg_d_len = s + n - dot_c - 1;
+
+	// Ensure that each address part is a maximum of three digits
+	if (seg_a_len > 3 || seg_b_len > 3 || seg_c_len > 3 || seg_d_len > 3)
+	{
+		return 0;
+	}
+
+	// Use a temporary array to store each address part as a null-terminated string for atoi
+	char tmp[4];
+	int val;
+
+	// Ensure that the first part is a valid uint8
+	strncpy(tmp, s, seg_a_len);
+	tmp[seg_a_len] = '\0';
+	val = atoi(tmp);
+	if (val < 0 || val > 255 || (val == 0 && (tmp[0] != '0' || tmp[1] != '\0')))
+	{
+		return 0;
+	}
+
+	// Ensure that the second part is a valid uint8
+	strncpy(tmp, dot_a + 1, seg_b_len);
+	tmp[seg_b_len] = '\0';
+	val = atoi(tmp);
+	if (val < 0 || val > 255 || (val == 0 && (tmp[0] != '0' || tmp[1] != '\0')))
+	{
+		return 0;
+	}
+
+	// Ensure that the third part is a valid uint8
+	strncpy(tmp, dot_b + 1, seg_c_len);
+	tmp[seg_c_len] = '\0';
+	val = atoi(tmp);
+	if (val < 0 || val > 255 || (val == 0 && (tmp[0] != '0' || tmp[1] != '\0')))
+	{
+		return 0;
+	}
+
+	// Ensure that the fourth part is a valid uint8
+	strncpy(tmp, dot_c + 1, seg_d_len);
+	tmp[seg_d_len] = '\0';
+	val = atoi(tmp);
+	if (val < 0 || val > 255 || (val == 0 && (tmp[0] != '0' || tmp[1] != '\0')))
+	{
+		return 0;
+	}
+
 	return 1;
 }
 
@@ -37,11 +124,26 @@ int main(int argc, char* argv[])
 {
 	printf("Running socky test suite...\n");
 
+	announce_tests("is_valid_ip");
+	{
+		check_test(is_valid_ip("127.0.0.1"), "127.0.0.1 is valid");
+		check_test(is_valid_ip("0.0.0.0"), "0.0.0.0 is valid");
+		check_test(is_valid_ip("255.1.16.255"), "255.1.16.255 is valid");
+		check_test(!is_valid_ip("1.1.1"), "1.1.1 is invalid");
+		check_test(!is_valid_ip("1.1.1."), "1.1.1. is invalid");
+		check_test(!is_valid_ip(".1.1.1"), ".1.1.1 is invalid");
+		check_test(!is_valid_ip("255.255.255.256"), "255.255.255.256 is invalid");
+		check_test(!is_valid_ip("127.0.-1.1"), "127.0.-1.1 is invalid");
+		check_test(!is_valid_ip("127.0.99999.1"), "127.0.99999.1 is invalid");
+		check_test(!is_valid_ip("127.0.foo.1"), "127.0.foo.1 is invalid");
+		check_test(!is_valid_ip(""), "empty string is invalid");
+		check_test(!is_valid_ip(NULL), "null is invalid");
+	}
+
 	announce_tests("socky_init");
 	const int init_result = socky_init();
 	check_test(init_result == 0, "socky_init() returns 0");
 
-	/*
 	announce_tests("socky_adapters_*");
 	{
 		socky_adapters_init();
@@ -55,7 +157,6 @@ int main(int argc, char* argv[])
 		check_test(adapter_ip[0], "socky_adapters_get_ip(0) returns non-empty");
 		check_test(is_valid_ip(adapter_ip), "socky_adapters_get_ip(0) returns a valid IPv4 address string");
 	}
-	*/
 
 	announce_tests("socky_udp_* (flags: 0)");
 	{
