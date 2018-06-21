@@ -72,17 +72,20 @@ void socky_adapters_init()
 {
 	// Explicitly reset our module-level state: clear all names and reset adapter count to zero
 	s_num_adapter_addresses = 0;
-	for (int i = 0; i < MAX_ADAPTER_ADDRESSES; i++)
+	int i = 0;
+	while (i < MAX_ADAPTER_ADDRESSES)
 	{
 		s_adapter_addresses[i][0] = '\0';
+		i++;
 	}
 
 #ifdef _WIN32
 	// TODO: Implement
 #else
 	struct ifaddrs* addrs;
+	struct ifaddrs* item;
 	getifaddrs(&addrs);
-	for (struct ifaddrs* item = addrs; item; item = item->ifa_next)
+	for (item = addrs; item; item = item->ifa_next)
 	{
 		// Iterate over all internet adapters
 		if (item->ifa_addr && item->ifa_addr->sa_family == AF_INET)
