@@ -110,7 +110,7 @@ void socky_adapters_init()
 
 int socky_adapters_num()
 {
-	return s_num_adapter_addresses;
+	return (int)s_num_adapter_addresses;
 }
 
 const char* socky_adapters_get_ip(int index)
