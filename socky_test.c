@@ -86,9 +86,9 @@ int is_valid_ip(const char* s)
 	tmp[_Len] = '\0'; \
 	val = atoi(tmp);
 #else
-#define IP_PART_ATOI(_Ptr, Len) \
+#define IP_PART_ATOI(_Ptr, _Len) \
 	strncpy(tmp, _Ptr, _Len); \
-	tmp[_Len] = '\0';
+	tmp[_Len] = '\0'; \
 	val = atoi(tmp);
 #endif
 
