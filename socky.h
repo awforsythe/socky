@@ -30,6 +30,10 @@
   #endif
 #endif
 
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
 ///
 /// Library setup and teardown
 ///
@@ -88,3 +92,7 @@ int socky_udp_has_data(SOCKET sock, u_long* outNumBytesAvailable);
 /** Calls recvfrom on the given socket, reading data into the provided buffer and populating outFromAddr with the
 	address of the sender. Returns the number of bytes read, or 0 if unsuccessful. */
 int socky_udp_read(SOCKET sock, char* buffer, size_t bufferSize, struct sockaddr_in* outFromAddr);
+
+#ifdef __cplusplus
+}
+#endif
