@@ -3,6 +3,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef _WIN32
+#if _MSC_VER <= 1700
+#define snprintf(_Buf, _Len, _Fmt, ...) sprintf_s(_Buf, _Len, _Fmt, __VA_ARGS__)
+#endif
+#endif
+
 #define MAX_ADAPTER_ADDRESSES 8
 
 static char s_adapter_addresses[MAX_ADAPTER_ADDRESSES][32];
@@ -70,22 +76,26 @@ int socky_error_format(const char* prefix, char* errorStr, size_t errorStrLen)
 
 void socky_adapters_init()
 {
+	int i;
+#ifdef _WIN32
+	IP_ADAPTER_INFO infos[MAX_ADAPTER_ADDRESSES];
+	PIP_ADAPTER_INFO info;
+	ULONG bufferSize;
+#endif
+
 	// Explicitly reset our module-level state: clear all names and reset adapter count to zero
 	s_num_adapter_addresses = 0;
-	int i = 0;
-	while (i < MAX_ADAPTER_ADDRESSES)
+	for (i = 0; i < MAX_ADAPTER_ADDRESSES; i++)
 	{
 		s_adapter_addresses[i][0] = '\0';
-		i++;
 	}
 
 #ifdef _WIN32
-	IP_ADAPTER_INFO infos[MAX_ADAPTER_ADDRESSES];
-	ULONG bufferSize = sizeof(infos);
+	bufferSize = sizeof(infos);
 	if (GetAdaptersInfo(infos, &bufferSize) == ERROR_SUCCESS)
 	{
 		// Iterate over all internet adapters
-		for (PIP_ADAPTER_INFO info = infos; info; info = info->Next)
+		for (info = infos; info; info = info->Next)
 		{
 			// Copy the address string and increment our count of known adapter addresses
 			strcpy_s(s_adapter_addresses[s_num_adapter_addresses], sizeof(s_adapter_addresses[0]), info->IpAddressList.IpAddress.String);
@@ -138,6 +148,8 @@ const char* socky_adapters_get_ip(int index)
 
 SOCKET socky_udp_open(unsigned short bindPort, int flags, char* errorStr, size_t errorStrLen)
 {
+	struct sockaddr_in bindAddr;
+
 	// Attempt to create the socket
 	SOCKET sock = socket(AF_INET, SOCK_DGRAM, 0);
 	if (IS_INVALID_SOCKET(sock))
@@ -181,7 +193,6 @@ SOCKET socky_udp_open(unsigned short bindPort, int flags, char* errorStr, size_t
 	}
 
 	// Prepare the address struct to define the address we'll bind to
-	struct sockaddr_in bindAddr;
 	memset(&bindAddr, 0, sizeof(bindAddr));
 	bindAddr.sin_family = AF_INET;
 	bindAddr.sin_addr.s_addr = htonl(INADDR_ANY);
